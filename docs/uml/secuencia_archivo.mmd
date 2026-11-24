@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  actor E as Emisor
+  participant DC as RTCDataChannel "archivos" (confiable, ordenado)
+  actor R as Receptor
+  E->>E: lee File, calcula SHA-256 (SubtleCrypto)
+  E->>DC: {tipo:"meta", id, nombre, tamaño, mime, sha256}
+  DC->>R: meta → reserva lista de fragmentos y muestra barra
+  loop hasta enviar todos los fragmentos de 16 KiB
+    alt bufferedAmount < umbral (1 MiB)
+      E->>DC: send(fragmento ArrayBuffer)
+      DC->>R: fragmento → actualiza progreso
+    else búfer lleno
+      E->>E: espera evento bufferedamountlow
+    end
+  end
+  E->>DC: {tipo:"fin", id}
+  R->>R: arma Blob, verifica tamaño y SHA-256
+  alt hash coincide
+    R->>DC: {tipo:"ok", id}
+    R->>R: muestra vista previa o enlace de descarga
+  else no coincide o canal cerrado
+    R->>DC: {tipo:"error", id}
+    R->>R: marca "archivo interrumpido"
+  end

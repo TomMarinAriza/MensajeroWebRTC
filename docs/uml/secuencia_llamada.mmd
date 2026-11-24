@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  actor A as Navegador A
+  participant NA as nodo-a
+  participant NB as nodo-b
+  actor B as Navegador B
+  A->>A: getUserMedia() y new RTCPeerConnection()
+  A->>A: createOffer() → setLocalDescription(oferta)
+  A->>NA: {type:"offer", payload: SDP}
+  NA->>NB: reenvía por /par
+  NB->>B: offer
+  B->>B: getUserMedia() y setRemoteDescription(oferta)
+  B->>B: createAnswer() → setLocalDescription(respuesta)
+  B->>NB: {type:"answer", payload: SDP}
+  NB->>NA: reenvía
+  NA->>A: answer → setRemoteDescription(respuesta)
+  par Trickle ICE
+    A->>NA: {type:"ice", candidate}
+    NA->>NB: reenvía
+    NB->>B: addIceCandidate()
+  and
+    B->>NB: {type:"ice", candidate}
+    NB->>NA: reenvía
+    NA->>A: addIceCandidate()
+  end
+  A-->>B: comprobaciones de conectividad ICE (STUN)
+  A<<->>B: DTLS-SRTP audio/video directo (sin pasar por los nodos)

@@ -1,0 +1,26 @@
+flowchart LR
+  subgraph NAV["«component» Cliente web (navegador)"]
+    UI["«component»<br/>Interfaz (HTML/CSS)"]
+    MED["«component»<br/>CapturaMedios<br/>getUserMedia"]
+    PC["«component»<br/>ConexionPares<br/>RTCPeerConnection"]
+    CHAT["«component»<br/>Chat<br/>DataChannel 'chat'"]
+    FILE["«component»<br/>Archivos<br/>DataChannel 'archivos'"]
+    SIGC["«component»<br/>ClienteSenalizacion<br/>WebSocket"]
+  end
+  subgraph SRV["«component» Servidor de señalización (Node.js + ws)"]
+    WSC["«interface»<br/>/cliente"]
+    WSP["«interface»<br/>/par"]
+    REL["«component»<br/>Retransmisor"]
+    HTTP["«component»<br/>Archivos estáticos<br/>+ /health"]
+  end
+  UI --> MED
+  UI --> CHAT
+  UI --> FILE
+  MED --> PC
+  CHAT --> PC
+  FILE --> PC
+  PC -- "SDP / ICE" --> SIGC
+  SIGC -- "WebSocket JSON" --> WSC
+  WSC --> REL
+  REL -- "reenvía" --> WSP
+  UI -. "HTTP(S) GET" .-> HTTP

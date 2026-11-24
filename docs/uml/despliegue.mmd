@@ -1,0 +1,19 @@
+flowchart LR
+  subgraph HOST["«device» Equipo anfitrión (Windows + Docker Desktop / WSL2)"]
+    subgraph NAVS["Navegadores (captura de medios aquí)"]
+      direction TB
+      BA["«execution env» Navegador A<br/>cámara y micrófono"]
+      BB["«execution env» Navegador B<br/>cámara y micrófono"]
+    end
+    subgraph DOCKER["«execution env» Docker Engine — red bridge mensajero-net"]
+      PX["«container» proxy (Caddy)<br/>:8443 / :8444 (fase 3)"]
+      NA["«container» nodo-a<br/>Node 22 + server.js :8080"]
+      NB["«container» nodo-b<br/>Node 22 + server.js :8080"]
+    end
+  end
+  BA -- "HTTPS + WSS :8443<br/>(fase 2: WS :8081)" --> PX
+  BB -- "HTTPS + WSS :8444<br/>(fase 2: WS :8082)" --> PX
+  PX -- "HTTP/WS :8080" --> NA
+  PX -- "HTTP/WS :8080" --> NB
+  NA <-- "WebSocket ws://nodo-b:8080/par<br/>(DNS interno de Docker)" --> NB
+  BA <== "SRTP + SCTP/DTLS<br/>UDP efímeros (ICE)" ==> BB

@@ -1,0 +1,14 @@
+stateDiagram-v2
+  [*] --> Desconectado
+  Desconectado --> EnLinea: WebSocket abierto y par "online"
+  EnLinea --> Llamando: clic en Llamar (envía offer)
+  EnLinea --> Sonando: llega offer
+  Llamando --> Conectando: llega answer
+  Sonando --> Conectando: usuario acepta (envía answer)
+  Conectando --> EnLlamada: iceConnectionState = connected
+  Conectando --> EnLinea: falla ICE / timeout
+  EnLlamada --> EnLinea: Colgar (hangup)
+  EnLlamada --> Reconectando: iceConnectionState = disconnected
+  Reconectando --> EnLlamada: se recupera
+  Reconectando --> EnLinea: failed
+  EnLinea --> Desconectado: par "offline"
