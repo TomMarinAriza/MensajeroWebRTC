@@ -1,0 +1,9 @@
+{
+  "name": "mensajero-senalizacion",
+  "version": "0.1.0",
+  "description": "Servidor de señalización del mensajero WebRTC (primer avance, sin interfaz)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "ws": "^8.18.0" }
+}

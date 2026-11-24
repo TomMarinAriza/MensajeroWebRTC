@@ -1,0 +1,34 @@
+# Dos nodos del mensajero en una red bridge definida por el usuario.
+# Se encuentran por nombre de servicio (nodo-a / nodo-b) gracias al DNS interno de Docker.
+services:
+  nodo-a:
+    build: ./servidor
+    container_name: nodo-a
+    hostname: nodo-a
+    environment:
+      NODE_NAME: nodo-a
+      PORT: "8080"
+      PEER_URL: ws://nodo-b:8080/par
+    ports:
+      - "8081:8080"   # anfitrión:contenedor  (publicar)
+    networks:
+      - mensajero-net
+    restart: unless-stopped
+
+  nodo-b:
+    build: ./servidor
+    container_name: nodo-b
+    hostname: nodo-b
+    environment:
+      NODE_NAME: nodo-b
+      PORT: "8080"
+      PEER_URL: ws://nodo-a:8080/par
+    ports:
+      - "8082:8080"
+    networks:
+      - mensajero-net
+    restart: unless-stopped
+
+networks:
+  mensajero-net:
+    driver: bridge
